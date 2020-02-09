@@ -6,9 +6,11 @@ namespace Lab13
     {
         static void Main(string[] args)
         {
-            UserGenerated user = new UserGenerated();
+            RoshamboApp rps = new RoshamboApp();
+            
+            /*UserGenerated user = new UserGenerated();
             Console.WriteLine(user.GenerateRoshambo());
-            Console.ReadKey();
+            Console.ReadKey();*/
         }
     }
 }

@@ -4,6 +4,12 @@ using System.Text;
 
 namespace Lab13
 {
+    public enum Roshambo
+    {
+        Rock,
+        Paper,
+        Sissors
+    }
     public abstract class Player
     {
         private Roshambo roshamboValue;
@@ -11,12 +17,10 @@ namespace Lab13
 
         public Roshambo RoshamboValue { get => roshamboValue; set => roshamboValue = value; }
         public string Name { get => name; set => name = value; }
-        public enum Roshambo
-        {
-            Rock,
-            Paper,
-            Sissors
-        }
+        public int Wins { get; set; }
+        public int Losses { get; set; }
+        public int Ties { get; set; }
+
         public Player()
         {
 
