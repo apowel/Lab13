@@ -11,8 +11,13 @@ namespace Lab13
             bool nameSelect = true;
             while(nameSelect)
             {
-                Console.WriteLine("Please enter a name for your character: ");
-                Name = Console.ReadLine();
+                do
+                {
+                    Console.Clear();
+                    Console.WriteLine("Please enter a name for your character: ");
+                    Name = Console.ReadLine().Trim();
+                }
+                while (Name.Equals(null) || Name.Equals(""));
                 int decision = 0;
                 Console.Clear();
                 Console.WriteLine($"You entered: {Name}. Is that the name you would like to use?");
@@ -32,16 +37,13 @@ namespace Lab13
         }
         public override Roshambo GenerateRoshambo()
         {
-            Console.WriteLine("Make your decision:");
-            int i = 1;
-            foreach (Roshambo rps in Enum.GetValues(typeof(Roshambo)))
-            {
-                Console.WriteLine($"{i}: {rps}");
-                i++;
-            }
+            RPSPrompt();
             int rpsDecision;
             while (!Int32.TryParse(Console.ReadLine(), out rpsDecision) || rpsDecision < 1 || rpsDecision > 3)
             {
+                Console.Clear();
+                Console.WriteLine("That was not a valid input");
+                RPSPrompt();
             }
             Console.Clear();
             if (rpsDecision == 1)
@@ -63,6 +65,16 @@ namespace Lab13
             Console.WriteLine($"You entered: {Name}. Is that the name you would like to use?");
             Console.WriteLine("1: Yes");
             Console.WriteLine("2: No");
+        }
+        private void RPSPrompt()
+        {
+            Console.WriteLine("Make your decision:");
+            int i = 1;
+            foreach (Roshambo rps in Enum.GetValues(typeof(Roshambo)))
+            {
+                Console.WriteLine($"{i}: {rps}");
+                i++;
+            }
         }
     }
 }

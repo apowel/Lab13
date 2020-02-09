@@ -20,11 +20,6 @@ namespace Lab13
         public int Wins { get; set; }
         public int Losses { get; set; }
         public int Ties { get; set; }
-
-        public Player()
-        {
-
-        }
         public abstract Roshambo GenerateRoshambo();
     }
 }
