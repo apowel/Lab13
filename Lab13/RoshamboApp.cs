@@ -10,11 +10,28 @@ namespace Lab13
         public Player Player1 { get; set; }
         public Player Player2 { get; set; }
         Roster roster = new Roster();
-
-
+        
         public RoshamboApp()
         {
+            GetRoster();
             MainMenu();
+        }
+        private void GetRoster()
+        {
+            if (File.Exists("Roster.XML"))
+            {
+                roster = ReadFromXmlFile("Roster.XML");
+            }
+            else
+            {
+                roster = new Roster();
+                roster.users = new List<Player>();
+                roster.npcRoster = new List<Player>
+                {
+                    new Dwayne(),
+                    new Randolph()
+                };
+            }
         }
         private void MainMenu()
         {
@@ -23,7 +40,12 @@ namespace Lab13
             Console.WriteLine("Please type the number of an option below:\n");
             Console.WriteLine("1: Play");
             Console.WriteLine("2: Show Scores");
-            Console.WriteLine("3: Exit Game\n");
+            Console.WriteLine("3: Save and Exit Game");
+            Console.WriteLine("4: Exit Without Saving");
+            if (File.Exists("Roster.XML"))
+            {
+                Console.WriteLine("\n0: Delete Saved Data");
+            }
             GetMenuInput();
         }
         private void GetMenuInput()
@@ -42,7 +64,21 @@ namespace Lab13
                 }
                 if (decision == "3")
                 {
+                    WriteXML(roster);
                     Environment.Exit(0);
+                }
+                if (decision == "4")
+                {
+                    Environment.Exit(0);
+                }
+                if (decision == "0")
+                {
+                    if (File.Exists("Roster.XML"))
+                    {
+                        File.Delete("Roster.XML");
+                        GetRoster();
+                        MainMenu();
+                    }
                 }
                 else
                 {
@@ -67,34 +103,27 @@ namespace Lab13
         private void CharacterSelect()
         {
             Console.Clear();
-            if (roster.users.Count == 0)
+            Console.WriteLine("Select a character or create a new one: ");
+            roster.GetUsers();
+            Console.WriteLine($"{roster.users.Count + 1}: Create New Character");
+            int decision = 0;
+            while (!Int32.TryParse(Console.ReadLine(), out decision) 
+                || decision < 1 || decision > (roster.users.Count + 1))
             {
-                Player1 = new UserGenerated();
-                roster.users.Add(Player1);
-            }
-            else
-            {
-                Console.WriteLine("Select a character or create a new one: ");
+                Console.Clear();
+                Console.WriteLine("That was not a Valid input");
                 roster.GetUsers();
                 Console.WriteLine($"{roster.users.Count + 1}: Create New Character");
-                int decision = 0;
-                while (!Int32.TryParse(Console.ReadLine(), out decision) 
-                    || decision < 1 || decision > (roster.users.Count + 1))
-                {
-                    Console.Clear();
-                    Console.WriteLine("That was not a Valid input");
-                    roster.GetUsers();
-                    Console.WriteLine($"{roster.users.Count + 1}: Create New Character");
-                }
-                try
-                {
-                    Player1 = roster.users[decision - 1];
-                }
-                catch
-                {
-                    Player1 = new UserGenerated();
-                    roster.users.Add(Player1);
-                }
+            }
+            try
+            {
+                Player1 = roster.users[decision - 1];
+            }
+            catch
+            {
+                Player1 = new UserGenerated();
+                Player1.Name = UserGenerated.GetName();
+                roster.users.Add(Player1);
             }
         }
         private void SelectOpponent()
@@ -102,7 +131,7 @@ namespace Lab13
             Console.Clear();
             Console.WriteLine("Please select an opponent: ");
             roster.GetNPCs();
-            int decision = 0;
+            int decision;
             while (!Int32.TryParse(Console.ReadLine(), out decision)
                 || decision < 1 || decision > (roster.npcRoster.Count))
             {
@@ -148,22 +177,27 @@ namespace Lab13
         private void DisplayRecords()
         {
             Console.Clear();
-            Console.WriteLine("Here are the current win/loss records: \n");
             if (roster.users.Count > 0)
             {
+                Console.WriteLine("Here are the current win/loss records: \n");
                 Console.WriteLine("Player scores: ");
                 foreach (Player user in roster.users)
                 {
                     Console.WriteLine($"{user.Name}'s wins: {user.Wins}\n{user.Name}'s losses:{user.Losses}\n");
                     Console.WriteLine();
                 }
+
+                Console.WriteLine("NPC Scores: ");
+                foreach (Player npc in roster.npcRoster)
+                {
+                    Console.WriteLine($"{npc.Name}'s wins: {npc.Wins}\n{npc.Name}'s losses:{npc.Losses}\n");
+                }
             }
-            Console.WriteLine("NPC Scores: ");
-            foreach (Player npc in roster.npcRoster)
+            else
             {
-                Console.WriteLine($"{npc.Name}'s wins: {npc.Wins}\n{npc.Name}'s losses:{npc.Losses}\n");
+                Console.WriteLine("No games have been recorded yet.");
             }
-            Console.WriteLine("Press any key to continue");
+            Console.WriteLine("\nPress any key to continue");
             Console.ReadKey();
             MainMenu();
         }
@@ -189,26 +223,29 @@ namespace Lab13
                 }
             }
         }
-/*        private static string WriteXML(Player player)
+        private static void WriteXML(Roster roster)
         {
-            //Player player = new UserGenerated();
-            System.Xml.Serialization.XmlSerializer writer =
-                new System.Xml.Serialization.XmlSerializer(typeof(Player));
-
-            var path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            System.IO.FileStream file = System.IO.File.Create(path);
-
-            writer.Serialize(file, player);
-            file.Close();
-            return path;
+            var path = "Roster.XML";
+            XmlSerializer serializer = new XmlSerializer(typeof(Roster));
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+            TextWriter writer = new StreamWriter(path);
+            serializer.Serialize(writer, roster);
+            writer.Close();
         }
-        private static Player ReadFromXmlFile<T>(string path)
+        private static Roster ReadFromXmlFile(string path)
         {
-            XmlSerializer reader = new XmlSerializer(typeof(Player));
-            StreamReader file = new StreamReader(path);
-            Player player = (Player)reader.Deserialize(file);
-            file.Close();
-            return player;
-        }*/
+            object obj = null;
+            XmlSerializer serializer = new XmlSerializer(typeof(Roster));
+            if (File.Exists(path))
+            {
+                TextReader textReader = new StreamReader(path);
+                obj = serializer.Deserialize(textReader);
+                textReader.Close();
+            }
+            return (Roster)obj;
+        }
     }
 }

@@ -4,35 +4,38 @@ using System.Text;
 
 namespace Lab13
 {
-    class UserGenerated : Player
+    public class UserGenerated : Player
     {
         public UserGenerated()
         {
-            bool nameSelect = true;
-            while(nameSelect)
+        }
+        public static string GetName()
+        {
+            string name;
+            do
             {
-                do
-                {
-                    Console.Clear();
-                    Console.WriteLine("Please enter a name for your character: ");
-                    Name = Console.ReadLine().Trim();
-                }
-                while (Name.Equals(null) || Name.Equals(""));
-                int decision = 0;
                 Console.Clear();
-                Console.WriteLine($"You entered: {Name}. Is that the name you would like to use?");
+                Console.WriteLine("Please enter a name for your character: ");
+                name = Console.ReadLine().Trim();
+            }
+            while (name.Equals(null) || name.Equals(""));
+            int decision = 0;
+            do
+            {
+                Console.Clear();
+                Console.WriteLine($"You entered: {name}. Is that the name you would like to use?");
                 Console.WriteLine("1: Yes");
                 Console.WriteLine("2: No");
-                while (!Int32.TryParse(Console.ReadLine(), out decision) || decision < 1 || decision > 2)
-                {
-                    Console.WriteLine("That was not a valid selection");
-                    NamePrompt();
-                }
-                if(decision == 1)
-                {
-                    nameSelect = false;
-                    Console.Clear();
-                }
+            }
+            while ((!Int32.TryParse(Console.ReadLine(), out decision) || decision < 1 || decision > 2));
+            if (decision == 1)
+            {
+                Console.Clear();
+                return name;
+            }
+            else
+            {
+                return GetName();
             }
         }
         public override Roshambo GenerateRoshambo()
@@ -59,7 +62,7 @@ namespace Lab13
                 return Roshambo.Sissors;
             }
         }
-        private void NamePrompt()
+        public void NamePrompt()
         {
             Console.Clear();
             Console.WriteLine($"You entered: {Name}. Is that the name you would like to use?");
